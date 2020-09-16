@@ -59,7 +59,7 @@ def tf_iou(tensor1, tensor2, mode="iou", epsilon=1e-7):
     tensor1_wh_scale = tensor1_wh[..., 0] / tf.maximum(tensor1_wh[..., 1], epsilon)
     tensor2_wh_scale = tensor2_wh[..., 0] / tf.maximum(tensor2_wh[..., 1], epsilon)
     v = 4.0 / math.pi ** 2 * tf.square(tf.math.atan(tensor1_wh_scale) - tf.math.atan(tensor2_wh_scale))
-    alpha = v / tf.maximum(1 - iou + v, epsilon)
+    alpha = tf.stop_gradient(v / tf.maximum(1 - iou + v, epsilon))
     ciou = diou - alpha * v
     if mode == "ciou":
         return ciou
