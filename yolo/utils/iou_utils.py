@@ -13,7 +13,6 @@ def tf_iou(tensor1, tensor2, mode="iou"):
     计算 iou
     :param tensor1: shape=[N, 4] 4: x, y, w, h
     :param tensor2: shape=[N, 4] 4: x, y, w, h
-    :param mode: 使用的iou的类型， [iou, giou, diou, ciou]
     :return: iou
     """
     tensor1 = tf.cast(tensor1, tf.float32)
@@ -55,9 +54,30 @@ def tf_iou(tensor1, tensor2, mode="iou"):
     if mode == "diou":
         return diou
 
-    v = tf.constant(4 / math.pi ** 2) * tf.square(tf.math.atan(tensor1_wh[..., 0] / tensor1_wh[..., 1]) \
-                                                   - tf.math.atan(tensor2_wh[..., 0] / tensor2_wh[..., 1]), axis=-1)
+    v = tf.constant(4.0 / math.pi ** 2) * tf.square(tf.math.atan(tensor1_wh[..., 0] / tensor1_wh[..., 1]) \
+                                                    - tf.math.atan(tensor2_wh[..., 0] / tensor2_wh[..., 1]))
     alpha = v / (1 - iou + v)
     ciou = diou - alpha * v
     if mode == "ciou":
         return ciou
+
+
+if __name__ == "__main__":
+    a = [[[5, 5, 9, 10], [4, 4, 8, 8]], [[4, 4, 8, 8], [4, 4, 8, 8]]]
+    b = [[6, 6, 8, 8], [5, 5, 9, 9]]
+
+    a = tf.constant(a)
+    b = tf.constant(b)
+
+    print(a, b)
+    iou = tf_iou(a, b, mode="iou")
+    print(iou)
+
+    giou = tf_iou(a, b, mode="giou")
+    print(giou)
+
+    diou = tf_iou(a, b, mode="diou")
+    print(diou)
+
+    ciou = tf_iou(a, b, mode="ciou")
+    print(ciou)
