@@ -8,6 +8,39 @@ import tensorflow as tf
 import math
 
 
+def box_iou(b1, b2):
+    """
+    计算box的iou
+    :param b1: tensor, shape=(i1,...,iN, 4), xywh
+    :param b2: tensor, shape=(j, 4), xywh
+    :return:
+    """
+    # Expand dim to apply broadcasting.
+    b1 = tf.expand_dims(b1, -2)
+    b1_xy = b1[..., :2]
+    b1_wh = b1[..., 2:4]
+    b1_wh_half = b1_wh/2.
+    b1_mins = b1_xy - b1_wh_half
+    b1_maxes = b1_xy + b1_wh_half
+
+    # Expand dim to apply broadcasting.
+    b2 = tf.expand_dims(b2, 0)
+    b2_xy = b2[..., :2]
+    b2_wh = b2[..., 2:4]
+    b2_wh_half = b2_wh/2.
+    b2_mins = b2_xy - b2_wh_half
+    b2_maxes = b2_xy + b2_wh_half
+
+    intersect_mins = tf.maximum(b1_mins, b2_mins)
+    intersect_maxes = tf.minimum(b1_maxes, b2_maxes)
+    intersect_wh = tf.maximum(intersect_maxes - intersect_mins, 0.)
+    intersect_area = intersect_wh[..., 0] * intersect_wh[..., 1]
+    b1_area = b1_wh[..., 0] * b1_wh[..., 1]
+    b2_area = b2_wh[..., 0] * b2_wh[..., 1]
+    iou = intersect_area / (b1_area + b2_area - intersect_area)
+    return iou
+
+
 def tf_iou(tensor1, tensor2, mode="iou", epsilon=1e-7):
     """
     计算 iou
@@ -39,7 +72,7 @@ def tf_iou(tensor1, tensor2, mode="iou", epsilon=1e-7):
     tensor2_area = tensor2_wh[..., 0] * tensor2_wh[..., 1]
     union_area = tensor1_area + tensor2_area - intersect_area
     iou = intersect_area / tf.maximum(union_area, epsilon)
-    if mode == "iou":
+    if mode.lower() == "iou":
         return iou
 
     enclose_x1y1 = tf.minimum(tensor1_x1y1, tensor2_x1y1)
@@ -47,13 +80,13 @@ def tf_iou(tensor1, tensor2, mode="iou", epsilon=1e-7):
     enclose_wh = tf.maximum(enclose_x2y2 - enclose_x1y1, 0.)
     enclose_area = enclose_wh[..., 0] * enclose_wh[..., 1]
     giou = iou - (enclose_area - union_area) / tf.maximum(enclose_area, epsilon)
-    if mode == "giou":
+    if mode.lower() == "giou":
         return giou
 
     dd = tf.reduce_sum(tf.square(tensor1_xy - tensor2_xy), axis=-1)
     cc = tf.reduce_sum(tf.square(enclose_wh), axis=-1)
     diou = iou - dd / tf.maximum(cc, epsilon)
-    if mode == "diou":
+    if mode.lower() == "diou":
         return diou
 
     tensor1_wh_scale = tensor1_wh[..., 0] / tf.maximum(tensor1_wh[..., 1], epsilon)
@@ -61,7 +94,7 @@ def tf_iou(tensor1, tensor2, mode="iou", epsilon=1e-7):
     v = 4.0 / math.pi ** 2 * tf.square(tf.math.atan(tensor1_wh_scale) - tf.math.atan(tensor2_wh_scale))
     alpha = tf.stop_gradient(v / tf.maximum(1 - iou + v, epsilon))
     ciou = diou - alpha * v
-    if mode == "ciou":
+    if mode.lower() == "ciou":
         return ciou
 
 
@@ -76,12 +109,10 @@ if __name__ == "__main__":
 
     print(a, b)
     iou = tf_iou(a, b, mode="iou")
-    print("===================")
     print(iou)
     #
-    # giou = tf_iou(a, b, mode="giou")
-    # print("===================")
-    # print(giou)
+    giou = tf_iou(a, b, mode="giou")
+    print(giou)
     #
     # diou = tf_iou(a, b, mode="diou")
     # print(diou)
