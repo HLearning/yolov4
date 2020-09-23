@@ -59,6 +59,12 @@ def write_file(file_name, name_box_id):
 
 
 if __name__ == "__main__":
+    annotations_path = "../../../datasets/coco2017/annotations/instances_train2017.json"
+    images_path = "../../../datasets/coco2017/train2017"
+    file_name = 'train.txt'
+    name_box_id = get_box(annotations_path, images_path)
+    write_file(file_name, name_box_id)
+
     annotations_path = "../../../datasets/coco2017/annotations/instances_val2017.json"
     images_path = "../../../datasets/coco2017/val2017"
     file_name = 'val.txt'

@@ -67,7 +67,7 @@ class YOLO_Kmeans:
         return clusters
 
     def result2txt(self, data):
-        f = open("yolo_anchors.txt", 'w')
+        f = open("anchors.txt", 'w')
         row = np.shape(data)[0]
         for i in range(row):
             if i == 0:
@@ -105,16 +105,15 @@ class YOLO_Kmeans:
         result = self.kmeans(all_boxes, k=self.cluster_number)
         result = result[np.lexsort(result.T[0, None])]
         self.result2txt(result)
-        #result = np.array([[12, 16], [19, 36], [40, 28], [36, 75], [76, 55],[72, 146], [142, 110], [192, 243], [459, 401]])
         print("K anchors:\n {}".format(result))
         print("Accuracy: {:.2f}%".format(self.avg_iou(all_boxes, result) * 100))
 
 
 if __name__ == "__main__":
     cluster_number = 9
-    filename = "val.txt"
+    filename = "train.txt"
     input_width, input_height = 608, 608
-    annotations_path = "../../../datasets/coco2017/annotations/instances_val2017.json"
+    annotations_path = "../../../datasets/coco2017/annotations/instances_train2017.json"
 
     kmeans = YOLO_Kmeans(annotations_path, input_width, input_height, cluster_number, filename)
     kmeans.txt2clusters()

@@ -9,7 +9,7 @@ from tensorflow.keras.layers import Concatenate, LeakyReLU, BatchNormalization, 
 from tensorflow.keras.regularizers import l2, l1
 from tensorflow.keras.activations import linear
 from tensorflow.keras.models import Model
-from activation import Mish
+from yolo.activation import Mish
 
 
 def Conv2D_BN_Act(x, filters, size, strides=1, batch_norm=True, activation="mish"):

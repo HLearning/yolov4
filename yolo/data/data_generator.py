@@ -1,13 +1,15 @@
-"""
-@Time    : 19-11-18 下午1:28
-@Author  : huangjinlei
-"""
+# ========================================
+# @Author          : HLearning
+# @Email           : hpuacm@qq.com
+# @Date            : 2020-05-01
+# ========================================
 
 from PIL import Image
 import numpy as np
 from matplotlib.colors import rgb_to_hsv, hsv_to_rgb
 import random
 import cv2
+
 
 def data_gen(annotation_lines, batch_size, input_shape, anchors, out_layers, num_classes):
     """
@@ -48,6 +50,7 @@ def data_gen(annotation_lines, batch_size, input_shape, anchors, out_layers, num
 def rand(a=0, b=1):
     return np.random.rand()*(b-a) + a
 
+
 def addsalt_pepper(img, SNR):
     img_ = img.copy()
     h, w, d = img_.shape
@@ -56,6 +59,7 @@ def addsalt_pepper(img, SNR):
     img_[mask == 1] = 255    # 盐噪声
     img_[mask == 2] = 0      # 椒噪声
     return img_
+
 
 def get_random_data(annotation_line, input_shape, random=True, max_boxes=20):
     """

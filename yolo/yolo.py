@@ -6,16 +6,18 @@
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input
-from yolo4.backbone.cspdarknet53 import cspdarknet53
+from yolo.backbone.cspdarknet53 import cspdarknet53
+from yolo.utils.iou_utils import tf_iou
 
 
 class YOLO(object):
-    def __init__(self, input_shape, anchors, anchors_mask, num_classes=80, ignore_thresh=0.5):
+    def __init__(self, input_shape, anchors, anchors_mask, num_classes=80, ignore_thresh=0.5, num_anchors=9):
         self.input_shape = input_shape
         self.anchors = anchors
         self.anchors_mask = anchors_mask
         self.num_classes = num_classes
         self.ignore_thresh = ignore_thresh
+        self.num_anchors = num_anchors
 
     def model(self):
         model = cspdarknet53(Input(self.input_shape), self.num_anchors, self.num_classes)
@@ -86,7 +88,7 @@ class YOLO(object):
         true_box = tf.boolean_mask(y_true[..., :4], tf.cast(obj_mask, tf.bool))
 
         # 求计算的到的iou最大的框
-        best_iou = tf.reduce_max(box_iou(pred_xywh, true_box), axis=-1)
+        best_iou = tf.reduce_max(tf_iou(pred_xywh, true_box, mode="iou"), axis=-1)
         # 最大的iou小于阈值为副样本
         ignore_mask = tf.cast(best_iou < self.ignore_thresh, tf.float32)
         # 扩展维度， 方便计算
@@ -138,7 +140,7 @@ class YOLO(object):
         true_box = tf.boolean_mask(y_true[..., :4], tf.cast(obj_mask, tf.bool))
 
         # 求计算的到的iou最大的框
-        best_iou = tf.reduce_max(box_iou(pred_xywh, true_box), axis=-1)
+        best_iou = tf.reduce_max(tf_iou(pred_xywh, true_box, mode="iou"), axis=-1)
         # 最大的iou小于阈值为副样本
         ignore_mask = tf.cast(best_iou < self.ignore_thresh, tf.float32)
         # 扩展维度， 方便计算
