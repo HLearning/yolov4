@@ -5,6 +5,9 @@
     - [ ] YOLO V2 
     - [ ] YOLO V3 
     - [ ] YOLO V4 
+    - [ ] Scaled_YOLOv4
+    - [ ] YOLO V5
+    - [ ] YOLOX
 - [ ] 数据集
     - [ ] coco数据集
     - [ ] Anchors
@@ -33,7 +36,6 @@
     - [ ] 标签平滑
     - [ ] 消除网格敏感性
 - [ ] Loss
-    - [ ] 损失
     - [ ] IoU
     - [ ] GIou
     - [ ] DIoU
